@@ -1,0 +1,40 @@
+import requests
+from utils.logger import setup_logger
+from config import settings
+
+
+logger = setup_logger(__name__)
+# ---------------------------- ZENDESK UPDATE ----------------------------
+def update_zendesk_translation(article_id, locale, title, body_html):
+    url = f"https://{settings.ZENDESK_DOMAIN}/api/v2/help_center/articles/{article_id}/translations/{locale}.json"
+    headers = {"Content-Type": "application/json"}
+    payload = {
+        "translation": {
+            "title": title,
+            "body": body_html
+        }
+    }
+    logger.info("📤 Updating Zendesk localized translation...")
+    response = requests.put(url, auth=(settings.EMAIL + "/token", settings.API_TOKEN), headers=headers, json=payload)
+    if response.status_code == 200:
+        logger.info("✅ Zendesk translation updated successfully!")
+    else:
+        logger.error(f"❌ Failed to update translation. Status code: {response.status_code}")
+        logger.error("Response: %s", response.text)
+        response.raise_for_status()
+
+# ---------------------------- VERIFICATION ----------------------------
+def verify_article_update(article_id, locale=settings.LOCAL):
+    url = f"https://{settings.ZENDESK_DOMAIN}/api/v2/help_center/articles/{article_id}/translations/{locale}.json"
+    response = requests.get(url, auth=(settings.EMAIL + "/token", settings.API_TOKEN))
+    if response.status_code == 200:
+        data = response.json()
+        body = data.get('translation', {}).get('body')
+        if body:
+            print("\n🔍 Updated article preview (first 500 chars):")
+            print(body[:500])
+        else:
+            print("No body found in translation.")
+    else:
+        print(f"Failed to fetch localized article. Status code: {response.status_code}")
+        print("Response text:", response.text)
