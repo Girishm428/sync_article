@@ -1,4 +1,3 @@
-import pytest
 from bs4 import BeautifulSoup
 from core.cleaner import clean_admonitions, remove_copy_buttons
 

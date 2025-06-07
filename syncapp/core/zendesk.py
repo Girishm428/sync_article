@@ -1,6 +1,6 @@
 import requests
-from utils.logger import setup_logger
-from config import settings
+from syncapp.utils.logger import setup_logger
+from syncapp.config import settings
 
 
 logger = setup_logger(__name__)

@@ -3,8 +3,8 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 import time
-from core.cleaner import convert_tabs_to_static
-from utils.logger import setup_logger
+from syncapp.core.cleaner import convert_tabs_to_static
+from syncapp.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 # ---------------------------- FETCH AND CLEAN HTML CONTENT ----------------------------

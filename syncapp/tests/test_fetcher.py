@@ -1,4 +1,3 @@
-import pytest
 from bs4 import BeautifulSoup
 from core.fetcher import convert_tabs_to_static
 
