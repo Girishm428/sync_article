@@ -17,11 +17,15 @@ A Python tool to fetch OpenZiti documentation, clean and convert its HTML conten
 
 ```bash
 git clone https://github.com/yourusername/openziti-importer.git
-cd openziti-importer
+cd sync_article
+
 Install dependencies using Poetry:
-
-
 poetry install
+
+
+2. Rename .env.example:
+
+```bash
 Rename .env.example file to .env in the project root with the required variables:
 
 ZENDESK_DOMAIN=yourdomain.zendesk.com
