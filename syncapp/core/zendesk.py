@@ -5,8 +5,8 @@ from syncapp.config import settings
 
 logger = setup_logger(__name__)
 # ---------------------------- ZENDESK UPDATE ----------------------------
-def update_zendesk_translation(article_id, locale, title, body_html):
-    url = f"https://{settings.ZENDESK_DOMAIN}/api/v2/help_center/articles/{article_id}/translations/{locale}.json"
+def update_zendesk_translation(article_id, zendesk_domain, locale, title, body_html):
+    url = f"https://{zendesk_domain}/api/v2/help_center/articles/{article_id}/translations/{locale}.json"
     headers = {"Content-Type": "application/json"}
     payload = {
         "translation": {
@@ -31,10 +31,10 @@ def verify_article_update(article_id, locale=settings.LOCAL):
         data = response.json()
         body = data.get('translation', {}).get('body')
         if body:
-            print("\n🔍 Updated article preview (first 500 chars):")
-            print(body[:500])
+            logger.info("\n 🔍 Updated article preview (first 500 chars):")
+            logger.info(body[:500])
         else:
-            print("No body found in translation.")
+            logger.error("No body found in translation.")
     else:
-        print(f"Failed to fetch localized article. Status code: {response.status_code}")
-        print("Response text:", response.text)
+        logger.error(f"Failed to fetch localized article. Status code: {response.status_code}")
+        logger.error("Response text:", response.text)

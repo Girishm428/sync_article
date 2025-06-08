@@ -5,31 +5,28 @@ from syncapp.core.fetcher import fetch_content
 from syncapp.core.zendesk import update_zendesk_translation, verify_article_update
 from syncapp.config.settings import validate
 from syncapp.utils.logger import setup_logger
-from syncapp.utils.crypto import encrypt, decrypt
 
+# from syncapp.utils.crypto import encrypt, decrypt
+logger = setup_logger(__name__)
 
 #------------ Settings ------------
 SETTINGS_FILE = Path(__file__).parent / "settings.json"
 
-# --- Load & Save Settings ---
 def load_settings():
-    if SETTINGS_FILE.exists():
-        with open(SETTINGS_FILE, 'r') as f:
-            data = json.load(f)
-            if "API_TOKEN" in data and data["API_TOKEN"]:
-                try:
-                    data["API_TOKEN"] = decrypt(data["API_TOKEN"])
-                except Exception:
-                    data["API_TOKEN"] = ""
-            return data
+    logger.info(f"✅ SETTINGS_FILE exists: {SETTINGS_FILE.exists()}")
+    try:
+        if SETTINGS_FILE.exists():
+            with open(SETTINGS_FILE, 'r') as f:
+                data = json.load(f)
+                return data
+    except Exception as e:
+        logger.error(f"❌ Failed to load settings: {e}")
     return {"ZENDESK_DOMAIN": "", "EMAIL": "", "API_TOKEN": "", "LOCAL": "en-us"}
 
 def save_settings_to_file(data):
-    encrypted = dict(data)
-    if encrypted.get("API_TOKEN"):
-        encrypted["API_TOKEN"] = encrypt(encrypted["API_TOKEN"])
+    data = dict(data)
     with open(SETTINGS_FILE, 'w') as f:
-        json.dump(encrypted, f, indent=2)
+        json.dump(data, f, indent=2)
 
 settings = load_settings()
 
@@ -99,23 +96,32 @@ with ui.element('div').classes('absolute inset-0 flex items-center justify-cente
 
         with ui.row().classes('justify-end'):
             ui.button("🚀 Submit", on_click=lambda: start_sync()).props('color=primary size=lg')
+            
 
 #------------ Sync Logic ------------
 def start_sync():
     try:
+        logger.info(f"🔍 Validating settings...")   
         validate()
+                
+        logger.info(f"🔍 Fetching content from {source_url.value}...")
         content = fetch_content(source_url.value)
-        update_zendesk_translation(article_id.value, settings["LOCAL"], title.value, content)
+        
+        logger.info(f"🔍 Updating Zendesk translation for article {article_id.value}...")
+        update_zendesk_translation(article_id.value, settings["ZENDESK_DOMAIN"], settings["LOCAL"], title.value, content)
+        
+        logger.info(f"🔍 Verifying article update for {article_id.value}...")
         verify_article_update(article_id.value)
-        ui.notify("✅ Sync job completed.")
+
+        logger.info("✅ Sync job completed.")
     except Exception as e:
-        setup_logger("❌ Error during sync")
+        logger.error(f"❌ Error during sync: {e}")
         ui.notify(f"❌ Sync failed: {e}", type="negative")
 
 # --------- Start Web Server ---
 if __name__ == "__main__":
-    print("Requests imported successfully")
-    print(f"Running {__file__} as __name__ = {__name__}")
-    setup_logger("Starting web server on port 8000...")
+    logger.info("Requests imported successfully")
+    logger.info(f"Running {__file__} as __name__ = {__name__}")
+    logger.info("Starting web server on port 8000...")
     ui.run(host='0.0.0.0', port=8000, show=True, reload=False)
 

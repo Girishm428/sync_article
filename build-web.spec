@@ -79,5 +79,5 @@ exe = EXE(
     console=True,
     icon=None,
     bootloader_ignore_signals=False,
-    onefile=True,  # ✅ THIS is the correct placement
+    onefile=True,
 )
