@@ -3,14 +3,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# ZENDESK_DOMAIN = os.getenv("ZENDESK_DOMAIN")
-# ARTICLE_ID = os.getenv("ZENDESK_ARTICLE_ID")
-# EMAIL = os.getenv("ZENDESK_EMAIL")
-# API_TOKEN = os.getenv("ZENDESK_API_TOKEN")
-# SOURCE_URL = os.getenv("OPENZITI_SOURCE_URL")
-# LOCAL = os.getenv("ZENDESK_LOCAL")
-# DST_TITLE = os.getenv("ZENDESK_DST_TITLE")
-
 ZENDESK_DOMAIN = os.environ["ZENDESK_DOMAIN"]
 ARTICLE_ID = os.environ["ZENDESK_ARTICLE_ID"]
 EMAIL = os.environ["ZENDESK_EMAIL"]

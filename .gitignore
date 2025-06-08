@@ -1,4 +1,11 @@
 .env
-_pycache_/
+**/_pycache_/
 .venv/
 .json
+.secret_key
+/build/
+secret.key
+sync-ui.spec
+settings.json
+*.pyc
+dist/

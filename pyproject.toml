@@ -6,7 +6,7 @@ authors = [
     {name = "Girish Reddy"}
 ]
 readme = "README.md"
-requires-python = ">=3.12,<4.0"
+requires-python = ">=3.12,<3.14"
 dependencies = [
     "typer (>=0.16.0,<0.17.0)",
     "selenium (>=4.33.0,<5.0.0)",
@@ -16,10 +16,16 @@ dependencies = [
     "webdriver-manager (>=4.0.2,<5.0.0)",
     "fastapi[all] (>=0.115.12,<0.116.0)",
     "uvicorn (>=0.34.3,<0.35.0)",
-    "nicegui (>=2.19.0,<3.0.0)"
+    "nicegui (>=2.19.0,<3.0.0)",
+    "cryptography (>=45.0.3,<46.0.0)",
+    "pyinstaller (>=6.14.0,<7.0.0)"
 ]
 
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.dev.dependencies]
+pyinstaller = "^6.14.0"
+
