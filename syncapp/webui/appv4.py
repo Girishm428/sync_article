@@ -7,8 +7,8 @@ from syncapp.config.settings import validate
 from syncapp.utils.logger import setup_logger
 from syncapp.utils.crypto import encrypt, decrypt
 
-logger = setup_logger(__name__)
 
+#------------ Settings ------------
 SETTINGS_FILE = Path(__file__).parent / "settings.json"
 
 # --- Load & Save Settings ---
@@ -109,9 +109,13 @@ def start_sync():
         verify_article_update(article_id.value)
         ui.notify("✅ Sync job completed.")
     except Exception as e:
-        logger.exception("❌ Error during sync")
+        setup_logger("❌ Error during sync")
         ui.notify(f"❌ Sync failed: {e}", type="negative")
 
-
 # --------- Start Web Server ---
-ui.run(port=8000)
+if __name__ == "__main__":
+    print("Requests imported successfully")
+    print(f"Running {__file__} as __name__ = {__name__}")
+    setup_logger("Starting web server on port 8000...")
+    ui.run(host='0.0.0.0', port=8000, show=True, reload=False)
+
