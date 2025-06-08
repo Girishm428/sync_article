@@ -68,25 +68,16 @@ pyz = PYZ(a.pure, a.zipped_data, cipher=None)
 exe = EXE(
     pyz,
     a.scripts,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
     [],
-    exclude_binaries=True,
     name='sync-ui-web',
     debug=False,
-    bootloader_ignore_signals=False,
     strip=False,
     upx=True,
     console=True,
     icon=None,
-    onefile=True,
+    bootloader_ignore_signals=False,
+    onefile=True,  # ✅ THIS is the correct placement
 )
-
-coll = COLLECT(
-    exe,
-    a.binaries,
-    a.zipfiles,
-    a.datas,
-    strip=False,
-    upx=True,
-    upx_exclude=[],
-    name='sync-ui-web',
-) 
