@@ -1,11 +1,14 @@
 import requests
 from syncapp.utils.logger import setup_logger
-from syncapp.config import settings
+from syncapp.config.settings import load_settings
 
 
 logger = setup_logger(__name__)
 # ---------------------------- ZENDESK UPDATE ----------------------------
 def update_zendesk_translation(article_id, zendesk_domain, locale, title, body_html):
+    # Load fresh settings
+    current_settings = load_settings()
+    
     url = f"https://{zendesk_domain}/api/v2/help_center/articles/{article_id}/translations/{locale}.json"
     headers = {"Content-Type": "application/json"}
     payload = {
@@ -15,7 +18,17 @@ def update_zendesk_translation(article_id, zendesk_domain, locale, title, body_h
         }
     }
     logger.info("📤 Updating Zendesk localized translation...")
-    response = requests.put(url, auth=(settings.EMAIL + "/token", settings.API_TOKEN), headers=headers, json=payload)
+    logger.info(f"🔍 URL: {url}")
+    logger.info(f"🔍 EMAIL: {current_settings.get('EMAIL', '')}")
+    logger.info(f"🔍 HEADERS: {headers}")
+    
+    response = requests.put(
+        url, 
+        auth=(current_settings.get('EMAIL', '') + "/token", current_settings.get('API_TOKEN', '')), 
+        headers=headers, 
+        json=payload
+    )
+    
     if response.status_code == 200:
         logger.info("✅ Zendesk translation updated successfully!")
     else:
@@ -24,9 +37,20 @@ def update_zendesk_translation(article_id, zendesk_domain, locale, title, body_h
         response.raise_for_status()
 
 # ---------------------------- VERIFICATION ----------------------------
-def verify_article_update(article_id, locale=settings.LOCAL):
-    url = f"https://{settings.ZENDESK_DOMAIN}/api/v2/help_center/articles/{article_id}/translations/{locale}.json"
-    response = requests.get(url, auth=(settings.EMAIL + "/token", settings.API_TOKEN))
+def verify_article_update(article_id, locale=None):
+    # Load fresh settings
+    current_settings = load_settings()
+    
+    # Use provided locale or default from settings
+    if locale is None:
+        locale = current_settings.get('LOCAL', 'en-us')
+    
+    url = f"https://{current_settings.get('ZENDESK_DOMAIN', '')}/api/v2/help_center/articles/{article_id}/translations/{locale}.json"
+    response = requests.get(
+        url, 
+        auth=(current_settings.get('EMAIL', '') + "/token", current_settings.get('API_TOKEN', ''))
+    )
+    
     if response.status_code == 200:
         data = response.json()
         body = data.get('translation', {}).get('body')

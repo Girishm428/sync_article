@@ -6,9 +6,10 @@ import os
 import sys
 import nicegui
 import site
+from pathlib import Path
 
 project_dir = os.path.abspath(".")
-settings_file = os.path.join(project_dir, "syncapp", "webui", "settings.json")
+#settings_file = os.path.join(project_dir, "syncapp", "webui", "settings.json")
 
 # Get NiceGUI package directory and static files
 nicegui_dir = os.path.dirname(nicegui.__file__)
@@ -16,8 +17,8 @@ nicegui_static = os.path.join(nicegui_dir, 'static')
 
 # Collect all necessary data files
 datas = [
-    (settings_file, 'syncapp/webui'),
-    (os.path.join(project_dir, '.secret_key'), '.'),
+#   (settings_file, 'syncapp/webui'),
+#   (os.path.join(project_dir, '.secret_key'), '.'),
     (nicegui_static, 'nicegui/static'),
 ]
 
@@ -25,34 +26,39 @@ datas = [
 datas.extend(collect_data_files('nicegui'))
 datas.extend(collect_data_files('selenium'))
 datas.extend(collect_data_files('bs4'))
+datas.extend(collect_data_files('platformdirs'))
+
+# Collect all necessary submodules
+hiddenimports = [
+    *collect_submodules('nicegui'),
+    *collect_submodules('selenium'),
+    *collect_submodules('bs4'),
+    *collect_submodules('platformdirs'),
+    'typer',
+    'cryptography',
+    'requests',
+    'webdriver_manager',
+    'uvicorn',
+    'fastapi',
+    'starlette',
+    'pydantic',
+    'email_validator',
+    'python-multipart',
+    'websockets',
+    'aiofiles',
+    'jinja2',
+    'markupsafe',
+    'click',
+    'rich',
+    'shellingham',
+]
 
 a = Analysis(
     ['syncapp/webui/appv4.py'],
     pathex=[project_dir],
     binaries=[],
     datas=datas,
-    hiddenimports=[
-        *collect_submodules('nicegui'),
-        *collect_submodules('selenium'),
-        *collect_submodules('bs4'),
-        'typer',
-        'cryptography',
-        'requests',
-        'webdriver_manager',
-        'uvicorn',
-        'fastapi',
-        'starlette',
-        'pydantic',
-        'email_validator',
-        'python-multipart',
-        'websockets',
-        'aiofiles',
-        'jinja2',
-        'markupsafe',
-        'click',
-        'rich',
-        'shellingham',
-    ],
+    hiddenimports=hiddenimports,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

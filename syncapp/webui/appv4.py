@@ -1,18 +1,18 @@
 from nicegui import ui
-from pathlib import Path
 import json
 from syncapp.core.fetcher import fetch_content
 from syncapp.core.zendesk import update_zendesk_translation, verify_article_update
-from syncapp.config.settings import validate
+from syncapp.config.settings import validate, ensure_settings_file
 from syncapp.utils.logger import setup_logger
 
 # from syncapp.utils.crypto import encrypt, decrypt
 logger = setup_logger(__name__)
 
 #------------ Settings ------------
-SETTINGS_FILE = Path(__file__).parent / "settings.json"
+SETTINGS_FILE = ensure_settings_file()
 
 def load_settings():
+    logger.info(f"🔍 searching for settings file {SETTINGS_FILE}...")
     logger.info(f"✅ SETTINGS_FILE exists: {SETTINGS_FILE.exists()}")
     try:
         if SETTINGS_FILE.exists():
@@ -27,8 +27,11 @@ def save_settings_to_file(data):
     data = dict(data)
     with open(SETTINGS_FILE, 'w') as f:
         json.dump(data, f, indent=2)
+    logger.info(f"✅ Settings saved to {SETTINGS_FILE}")
 
 settings = load_settings()
+
+# ------------ Reactive Settings Refs ------------
 
 # 🔧 Global style for full height and gray background
 ui.add_head_html('''
@@ -46,29 +49,32 @@ ui.add_head_html('''
     </style>
 ''')
 
-#------------Enhanced Settings Dialog ------------
-with ui.dialog() as dialog, ui.card().classes('w-96 p-6'):
-    ui.label('⚙️ Settings').classes('text-xl font-semibold mb-4 text-center')
+def show_settings_dialog():
+    current_settings = load_settings()
+    with ui.dialog() as dialog, ui.card().classes('w-96 p-6'):
+        ui.label('⚙️ Settings').classes('text-xl font-semibold mb-4 text-center')
 
-    zendesk_domain = ui.input("Zendesk Domain", value=settings.get("ZENDESK_DOMAIN", "")).classes('mb-4').props('outlined')
-    email = ui.input("Email", value=settings.get("EMAIL", "")).classes('mb-4').props('outlined')
-    api_token = ui.input("API Token", value=settings.get("API_TOKEN", ""), password=True).classes('mb-4').props('outlined')
-    locale = ui.input("Locale", value=settings.get("LOCAL", "en-us")).classes('mb-6').props('outlined')
+        zendesk_domain = ui.input("Zendesk Domain", value=current_settings.get("ZENDESK_DOMAIN", "")).classes('mb-4').props('outlined')
+        email = ui.input("Email", value=current_settings.get("EMAIL", "")).classes('mb-4').props('outlined')
+        api_token = ui.input("API Token", value=current_settings.get("API_TOKEN", ""), password=True).classes('mb-4').props('outlined')
+        locale = ui.input("Locale", value=current_settings.get("LOCAL", "en-us")).classes('mb-6').props('outlined')
 
-    def save_settings():
-        settings.update({
-            "ZENDESK_DOMAIN": zendesk_domain.value,
-            "EMAIL": email.value,
-            "API_TOKEN": api_token.value,
-            "LOCAL": locale.value,
-        })
-        save_settings_to_file(settings)
-        ui.notify("✅ Settings saved.")
-        dialog.close()
+        def save_settings():
+            settings.update({
+                "ZENDESK_DOMAIN": zendesk_domain.value,
+                "EMAIL": email.value,
+                "API_TOKEN": api_token.value,
+                "LOCAL": locale.value,
+            })
+            save_settings_to_file(settings)
+            ui.notify("✅ Settings saved.")
+            dialog.close()
 
-    with ui.row().classes('justify-end gap-4'):
-        ui.button("💾 Save", on_click=save_settings).props('color=primary')
-        ui.button("❌ Close", on_click=dialog.close).props('flat color=gray')
+        with ui.row().classes('justify-end gap-4'):
+            ui.button("💾 Save", on_click=save_settings).props('color=primary')
+            ui.button("❌ Close", on_click=dialog.close).props('flat color=gray')
+    
+    dialog.open()
 
 #-----------Enhanced UI ------------
 with ui.element('div').classes('absolute inset-0 flex items-center justify-center'):
@@ -78,7 +84,7 @@ with ui.element('div').classes('absolute inset-0 flex items-center justify-cente
         'bg-white w-full max-w-2xl p-8 rounded-2xl shadow-2xl'
     ):
         with ui.row().classes('justify-end mb-4'):
-            ui.button('⚙️ Settings', on_click=dialog.open).props('flat color=gray')
+            ui.button('⚙️ Settings', on_click=show_settings_dialog).props('flat color=gray')
         ui.label('📄 Import Article to Zendesk').classes(
             'text-3xl font-bold mb-6 text-center text-blue-700'
         )
@@ -96,7 +102,8 @@ with ui.element('div').classes('absolute inset-0 flex items-center justify-cente
 
         with ui.row().classes('justify-end'):
             ui.button("🚀 Submit", on_click=lambda: start_sync()).props('color=primary size=lg')
-            
+
+          
 
 #------------ Sync Logic ------------
 def start_sync():
