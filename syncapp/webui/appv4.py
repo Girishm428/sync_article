@@ -102,7 +102,7 @@ with ui.element('div').classes('absolute inset-0 flex items-center justify-cente
         with ui.row().classes('justify-end'):
             ui.button("🚀 Submit", on_click=lambda: start_sync()).props('color=primary size=lg')
         
-        ui.label('📋 Live Status Logs:').classes('mt-6 font-medium text-lg')
+        ui.label('📋 Refresh to see Status Logs:').classes('mt-6 font-medium text-lg')
         with ui.row().classes('justify-between items-center mb-2'):
             ui.label("Logs:").classes('font-semibold')
             ui.button("🧹 Clear Logs", on_click=clear_logs).props('flat color=red')
@@ -145,4 +145,3 @@ if __name__ == "__main__":
     logger.info(f"Running {__file__} as __name__ = {__name__}")
     logger.info("Starting web server on port 8000...")
     ui.run(host='0.0.0.0', port=8000, show=True, reload=False)
-

@@ -152,3 +152,9 @@ def validate():
         raise EnvironmentError(f"❌ Missing required settings: {', '.join(missing)}")
     
     logger.info("✅ Settings validated successfully.")
+
+def save_settings_to_file(data):
+    data = dict(data)
+    with open(SETTINGS_FILE, 'w') as f:
+        json.dump(data, f, indent=2)
+    logger.info(f"✅ Settings saved to {SETTINGS_FILE}")
