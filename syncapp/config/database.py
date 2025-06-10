@@ -44,4 +44,4 @@ def init_db():
     logger.info("Database initialized.")
 
 # Initialize the database when this module is first imported
-init_db()
+# init_db()

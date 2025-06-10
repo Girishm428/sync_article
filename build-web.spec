@@ -51,10 +51,11 @@ hiddenimports = [
     'click',
     'rich',
     'shellingham',
+    'sqlite3',
 ]
 
 a = Analysis(
-    ['syncapp/webui/appv4.py'],
+    ['syncapp/webui/appv5.py'],
     pathex=[project_dir],
     binaries=[],
     datas=datas,
@@ -78,7 +79,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='sync-ui-web',
+    name='syncapp',
     debug=False,
     strip=False,
     upx=True,

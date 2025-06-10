@@ -23,14 +23,25 @@ async def run_sync_async(article_id: str, source_url: str, title: str):
         logger.info("🔍 Validating settings...")
         validate()
 
+        # Load fresh settings
+        current_settings = load_settings()
+        
+        # Validate required settings
+        if not current_settings.get("ZENDESK_DOMAIN"):
+            raise ValueError("Zendesk domain is not set in settings")
+        if not current_settings.get("EMAIL"):
+            raise ValueError("Email is not set in settings")
+        if not current_settings.get("API_TOKEN"):
+            raise ValueError("API token is not set in settings")
+
         logger.info(f"🌐 Fetching content from: {source_url}")
         content = fetch_content(source_url)
 
         logger.info(f"✍️ Updating Zendesk article ID {article_id}...")
         update_zendesk_translation(
             article_id=article_id,
-            zendesk_domain=settings["ZENDESK_DOMAIN"],
-            locale=settings["LOCAL"],
+            zendesk_domain=current_settings["ZENDESK_DOMAIN"],
+            locale=current_settings["LOCAL"],
             title=title,
             body_html=content,
         )
@@ -39,7 +50,9 @@ async def run_sync_async(article_id: str, source_url: str, title: str):
         verify_article_update(article_id)
 
         logger.info("✅ Sync process completed successfully!")
+        return True, "Sync process completed successfully!"
 
     except Exception as e:
-        logger.info(f"❌ Error during sync: {e}")
-    return True, "Sync process completed successfully!"
+        error_msg = str(e)
+        logger.error(f"❌ Error during sync: {error_msg}")
+        return False, f"Sync failed: {error_msg}"

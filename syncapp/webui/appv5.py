@@ -3,8 +3,11 @@ from syncapp.webui.pages.addarticle import index_page
 from syncapp.webui.pages.listarticle import list_page
 from syncapp.webui.pages.settingspage import settings_page
 from syncapp.loggers.log_cli import setup_logger
+from syncapp.config.database import init_db
 
 logger = setup_logger(__name__)
+
+init_db()
 
 @ui.page('/')
 def main():
