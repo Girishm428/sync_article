@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from syncapp.utils.logger import setup_logger
+from syncapp.loggers.log_cli import setup_logger
 import json
 from pathlib import Path
 from platformdirs import user_config_dir

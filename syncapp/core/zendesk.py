@@ -1,5 +1,5 @@
 import requests
-from syncapp.utils.logger import setup_logger
+from syncapp.loggers.log_cli import setup_logger
 from syncapp.config.settings import load_settings
 
 

@@ -1,11 +1,11 @@
 from nicegui import ui
 import json
-from syncapp.core.fetcher import fetch_content
-from syncapp.core.zendesk import update_zendesk_translation, verify_article_update
-from syncapp.config.settings import validate, ensure_settings_file
-from syncapp.utils.logger import setup_logger
+from syncapp.config.settings import ensure_settings_file
+from syncapp.loggers.log_cli import setup_logger
+import asyncio
+from syncapp.backend.sync_runner import run_sync_process
+from syncapp.loggers.log_ui import clear_logs, register_ui_updater, status_logs , log_message
 
-# from syncapp.utils.crypto import encrypt, decrypt
 logger = setup_logger(__name__)
 
 #------------ Settings ------------
@@ -78,7 +78,6 @@ def show_settings_dialog():
 
 #-----------Enhanced UI ------------
 with ui.element('div').classes('absolute inset-0 flex items-center justify-center'):
-
     # 💎 Styled card
     with ui.card().classes(
         'bg-white w-full max-w-2xl p-8 rounded-2xl shadow-2xl'
@@ -102,28 +101,43 @@ with ui.element('div').classes('absolute inset-0 flex items-center justify-cente
 
         with ui.row().classes('justify-end'):
             ui.button("🚀 Submit", on_click=lambda: start_sync()).props('color=primary size=lg')
+        
+        ui.label('📋 Live Status Logs:').classes('mt-6 font-medium text-lg')
+        with ui.row().classes('justify-between items-center mb-2'):
+            ui.label("Logs:").classes('font-semibold')
+            ui.button("🧹 Clear Logs", on_click=clear_logs).props('flat color=red')
 
-          
+         # Log container
+        log_container = ui.column().classes('w-full gap-2 h-64 overflow-y-auto bg-gray-50 p-4')
 
-#------------ Sync Logic ------------
+
+# ---------- UI Log Updater ----------
+async def update_log_container():
+    logger.info("🔄 update_log_container triggered...")
+    logger.info(f"📋 Current status_logs: {status_logs}")
+    log_container.clear()
+    with log_container:
+        for msg in status_logs:
+            logger.info(f"📤 Rendering log: {msg}")
+            ui.label(msg).classes('text-sm py-1')
+
+register_ui_updater(update_log_container)
+
+# ---------- Sync Handler ----------
 def start_sync():
-    try:
-        logger.info(f"🔍 Validating settings...")   
-        validate()
-                
-        logger.info(f"🔍 Fetching content from {source_url.value}...")
-        content = fetch_content(source_url.value)
-        
-        logger.info(f"🔍 Updating Zendesk translation for article {article_id.value}...")
-        update_zendesk_translation(article_id.value, settings["ZENDESK_DOMAIN"], settings["LOCAL"], title.value, content)
-        
-        logger.info(f"🔍 Verifying article update for {article_id.value}...")
-        verify_article_update(article_id.value)
+    async def run_async():
+        try:
+            await log_message("🔄 Starting sync process...")
+            await run_sync_process(
+                source_url.value,
+                article_id.value,
+                title.value,
+                settings
+            )
+        except Exception as e:
+            await log_message(f"❌ Error during sync: {e}")
 
-        logger.info("✅ Sync job completed.")
-    except Exception as e:
-        logger.error(f"❌ Error during sync: {e}")
-        ui.notify(f"❌ Sync failed: {e}", type="negative")
+    ui.timer(0.1, lambda: asyncio.create_task(run_async()), once=True)
 
 # --------- Start Web Server ---
 if __name__ == "__main__":

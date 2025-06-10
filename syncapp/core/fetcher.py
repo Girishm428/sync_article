@@ -4,7 +4,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 import time
 from syncapp.core.cleaner import convert_tabs_to_static
-from syncapp.utils.logger import setup_logger
+from syncapp.loggers.log_cli import setup_logger
 
 logger = setup_logger(__name__)
 # ---------------------------- FETCH AND CLEAN HTML CONTENT ----------------------------
@@ -16,7 +16,9 @@ def fetch_content(url):
 
     logger.info(f"🌐 Fetching content from {url}")
     driver.get(url)
+    logger.info("⏳ Waiting for page load...")
     time.sleep(3)  # Wait for dynamic content to render
+    logger.info("📄 Page loaded, getting source...")
 
     soup = BeautifulSoup(driver.page_source, "html.parser")
     main = soup.find('main')
@@ -24,11 +26,13 @@ def fetch_content(url):
         driver.quit()
         raise Exception("❌ Could not find <main> element.")
 
+    logger.info("✅ Found main element")
     content_div = main.find("div", class_="theme-doc-markdown")
     if not content_div:
         driver.quit()
         raise Exception("❌ Could not find markdown content block.")
 
+    logger.info("✅ Found markdown content block")
     # 🧹 Remove copy buttons from code blocks
     for copy_button in content_div.select("button"):
         logger.info(f"🧹 Removing copy button with text: '{copy_button.text.strip()}'")
@@ -82,4 +86,6 @@ def fetch_content(url):
 
     driver.quit()
     logger.info("✅ Content extracted and cleaned successfully.")
-    return content_div.decode_contents()
+    content = content_div.decode_contents()
+    logger.info(f"📄 Final content length: {len(content)}")
+    return content

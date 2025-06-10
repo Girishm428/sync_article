@@ -1,4 +1,4 @@
-from syncapp.utils.logger import setup_logger
+from syncapp.loggers.log_cli import setup_logger
 
 logger = setup_logger(__name__)
 # ---------------------------- CONVERT TABS TO STATIC ----------------------------
