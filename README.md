@@ -22,6 +22,18 @@ A Python-based automation tool to sync [OpenZiti](https://openziti.io/) document
 
 ## 📁 Project Structure
 
+├── syncapp/
+│ ├── init.py
+│ ├── backend/ # initate the core logic for sync process
+│ ├── config/ # Load/save settings.json, and articles.db
+│ ├── core/ # Fetchers, Cleaners, Handles Zendesk API interactions
+│ ├── loggers/ # log_cli.py and setup_logger.py
+│ ├── utils/ # Helper functions
+│ ├── webui/ # NiceGUI app with appv4.py
+│ | ├── appv5.py # Entrypoint for CLI or app launcher
+├── README.md
+├── requirements.txt
+├── pyproject.toml
 
 
 ---
@@ -31,48 +43,53 @@ A Python-based automation tool to sync [OpenZiti](https://openziti.io/) document
 ### Launch
 
 ```bash
-python syncapp/webui/appv4.py
+python syncapp/webui/appv5.py
+```
 
+### Features
 
-Features
-Form to input:
+#### Form to input:
 
-✅ Source URL
+    ✅ Source URL
+    ✅ Zendesk Article ID
+    ✅ Article Title
+    ✅ Multi-article sync queue
 
-✅ Zendesk Article ID
+#### Settings page:
 
-✅ Article Title
+    Zendesk subdomain
 
-✅ Multi-article sync queue
+#### Email / API token
 
-Settings page:
+    Sync button triggers backend with real-time log feedback.
 
-Zendesk subdomain
+```
 
-Email / API token
-
-Sync button triggers backend with real-time log feedback.
-
-
-🛠️ Setup
+## 🛠️ Setup
 1. Clone
 
+```bash
 git clone https://github.com/Girishm428/sync_article.git
 cd sync_article
+```
 
 2. Install dependencies
-pip install -r requirements.txt
 
-4. Configure settings.json
+```bash
+pip install -r requirements.txt
+```
+
+3. Configure settings.json
 Auto-generated on first run, or manually edit to include:
 
+```bash
 {
   "zendesk_subdomain": "yourdomain",
   "zendesk_email": "your@email.com",
   "zendesk_token": "your_token_here",
   "zendesk_local": "en-us"  
 }
-
+```
 
 License
 MIT License
