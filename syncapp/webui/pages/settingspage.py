@@ -26,7 +26,7 @@ def settings_page():
         
         zendesk_domain = ui.input('Zendesk Domain', value=current_settings.get("ZENDESK_DOMAIN", "")).props('outlined')
         email = ui.input('Email', value=current_settings.get("EMAIL", "")).props('outlined')
-        api_token = ui.input('API Token', value=current_settings.get("API_TOKEN", "")).props('outlined')
+        api_token = ui.input('API Token', value=current_settings.get("API_TOKEN", ""),password=True).classes('mb-4').props('outlined')
         locale = ui.input('Locale', value=current_settings.get("LOCAL", "en-us")).props('outlined')
 
 

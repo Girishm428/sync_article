@@ -35,10 +35,10 @@ async def run_sync_async(article_id: str, source_url: str, title: str):
             raise ValueError("API token is not set in settings")
 
         logger.info(f"🌐 Fetching content from: {source_url}")
-        content = fetch_content(source_url)
+        content = await fetch_content(source_url)
 
         logger.info(f"✍️ Updating Zendesk article ID {article_id}...")
-        update_zendesk_translation(
+        await update_zendesk_translation(
             article_id=article_id,
             zendesk_domain=current_settings["ZENDESK_DOMAIN"],
             locale=current_settings["LOCAL"],
@@ -47,7 +47,7 @@ async def run_sync_async(article_id: str, source_url: str, title: str):
         )
 
         logger.info("🔎 Verifying article update...")
-        verify_article_update(article_id)
+        await verify_article_update(article_id)
 
         logger.info("✅ Sync process completed successfully!")
         return True, "Sync process completed successfully!"

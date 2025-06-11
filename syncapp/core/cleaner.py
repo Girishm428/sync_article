@@ -1,10 +1,16 @@
 from syncapp.loggers.log_cli import setup_logger
+import asyncio
 
 logger = setup_logger(__name__)
 # ---------------------------- CONVERT TABS TO STATIC ----------------------------
-def convert_tabs_to_static(soup, tab_container):
+async def convert_tabs_to_static(soup, tab_container):
     """Converts a tabs UI block into static H3 headings and wraps tab content in <blockquote> for indentation."""
+    # Run the conversion in a separate thread since BeautifulSoup operations are CPU-bound
+    loop = asyncio.get_event_loop()
+    await loop.run_in_executor(None, _convert_tabs_to_static_sync, soup, tab_container)
 
+def _convert_tabs_to_static_sync(soup, tab_container):
+    """Synchronous version of convert_tabs_to_static that runs in a separate thread."""
     logger.info("🔁 Converting a tabs-container section to static content")
 
     # Grab tab labels
