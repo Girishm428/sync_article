@@ -22,7 +22,7 @@ def get_db_connection():
 
 def init_db():
     """Initializes the database and creates the table if it doesn't exist."""
-    logger.info(f"Data Base in not found, Initializing database: {DB_FILE}")
+    logger.info(f"🔍 Initializing database: {DB_FILE}")
     if DB_FILE.exists():
         # Check if we need to add new columns
         conn = get_db_connection()
@@ -45,7 +45,7 @@ def init_db():
         conn.close()
         return
         
-    logger.info(f"🔍 Initializing database: {DB_FILE}")
+    logger.info(f"🔍 Creating new database: {DB_FILE}")
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('''
@@ -62,7 +62,4 @@ def init_db():
     ''')
     conn.commit()
     conn.close()
-    logger.info("Database initialized.")
-
-# Initialize the database when this module is first imported
-# init_db()
+    logger.info("Database initialized successfully.")

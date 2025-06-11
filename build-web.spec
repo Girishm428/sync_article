@@ -52,6 +52,7 @@ hiddenimports = [
     'rich',
     'shellingham',
     'sqlite3',
+    'schedule',
 ]
 
 a = Analysis(

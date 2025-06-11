@@ -1,6 +1,42 @@
 import syncapp.config.database as db
 from nicegui import ui
-from datetime import datetime
+from datetime import datetime, timedelta
+
+def get_next_run_time(cron_schedule):
+    """Calculate the next run time for a cron schedule."""
+    try:
+        parts = cron_schedule.split()
+        if len(parts) >= 6:
+            minute = int(parts[1])
+            hour = int(parts[2])
+            day = parts[3]
+            month = parts[4]
+            weekday = parts[5]
+            
+            now = datetime.now()
+            next_run = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+            
+            # If the time has already passed today, move to next occurrence
+            if next_run <= now:
+                if day == '*' and month == '*' and weekday == '*':  # Daily
+                    next_run += timedelta(days=1)
+                elif day == '*' and month == '*' and weekday == '0':  # Weekly
+                    days_until_sunday = (7 - now.weekday()) % 7
+                    next_run += timedelta(days=days_until_sunday)
+                elif day == '1' and month == '*' and weekday == '*':  # Monthly
+                    if now.day >= 1:
+                        # Move to next month
+                        if now.month == 12:
+                            next_run = next_run.replace(year=now.year + 1, month=1, day=1)
+                        else:
+                            next_run = next_run.replace(month=now.month + 1, day=1)
+                    else:
+                        next_run = next_run.replace(day=1)
+            
+            return next_run.strftime('%Y-%m-%d %H:%M:%S')
+    except Exception as e:
+        return "Error calculating next run time"
+    return "Unknown schedule"
 
 def format_cron_schedule(cron_schedule):
     """Convert cron expression to user-friendly format."""
@@ -21,13 +57,17 @@ def format_cron_schedule(cron_schedule):
             
             # Determine frequency
             if day == '*' and month == '*' and weekday == '*':
-                return f"Daily at {time_str}"
+                next_run = get_next_run_time(cron_schedule)
+                return f"Daily at {time_str} (Next: {next_run})"
             elif day == '*' and month == '*' and weekday == '0':
-                return f"Weekly on Sunday at {time_str}"
+                next_run = get_next_run_time(cron_schedule)
+                return f"Weekly on Sunday at {time_str} (Next: {next_run})"
             elif day == '1' and month == '*' and weekday == '*':
-                return f"Monthly on 1st at {time_str}"
+                next_run = get_next_run_time(cron_schedule)
+                return f"Monthly on 1st at {time_str} (Next: {next_run})"
             else:
-                return f"Custom: {cron_schedule}"
+                next_run = get_next_run_time(cron_schedule)
+                return f"Custom: {cron_schedule} (Next: {next_run})"
     except Exception:
         return cron_schedule
 

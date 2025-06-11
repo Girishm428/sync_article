@@ -4,13 +4,28 @@ from syncapp.webui.pages.listarticle import list_page
 from syncapp.webui.pages.settingspage import settings_page
 from syncapp.loggers.log_cli import setup_logger
 from syncapp.config.database import init_db
-from syncapp.backend.sync_auto_run import run_scheduler
+from syncapp.backend.sync_auto_run import run_scheduler, stop_scheduler
 
 logger = setup_logger(__name__)
 
-# Initialize database and start scheduler
-init_db()
-run_scheduler()
+def initialize_application():
+    """Initialize all application components."""
+    try:
+        # Initialize database
+        logger.info("Initializing database...")
+        init_db()
+        
+        # Start scheduler
+        logger.info("Starting scheduler...")
+        run_scheduler()
+        logger.info("Application initialization completed successfully")
+        
+    except Exception as e:
+        logger.error(f"Error during application initialization: {str(e)}")
+        raise
+
+# Initialize application components
+initialize_application()
 
 @ui.page('/')
 def main():
@@ -26,7 +41,13 @@ def show_settings():
 
 # --------- Start Web Server ---
 if __name__ == "__main__":
-    logger.info("Requests imported successfully")
-    logger.info(f"Running {__file__} as __name__ = {__name__}")
-    logger.info("Starting web server on port 8000...")
-    ui.run(host='0.0.0.0', port=8000, show=True, reload=False)  
+    try:
+        logger.info("Requests imported successfully")
+        logger.info(f"Running {__file__} as __name__ = {__name__}")
+        logger.info("Starting web server on port 8000...")
+        ui.run(host='0.0.0.0', port=8000, show=True, reload=False)
+    except Exception as e:
+        logger.error(f"Error starting web server: {str(e)}")
+        # Ensure scheduler is stopped if application fails to start
+        stop_scheduler()
+        raise  
