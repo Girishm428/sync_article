@@ -4,10 +4,13 @@ from syncapp.webui.pages.listarticle import list_page
 from syncapp.webui.pages.settingspage import settings_page
 from syncapp.loggers.log_cli import setup_logger
 from syncapp.config.database import init_db
+from syncapp.backend.sync_auto_run import run_scheduler
 
 logger = setup_logger(__name__)
 
+# Initialize database and start scheduler
 init_db()
+run_scheduler()
 
 @ui.page('/')
 def main():
