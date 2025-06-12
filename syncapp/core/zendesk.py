@@ -17,10 +17,10 @@ async def update_zendesk_translation(article_id, zendesk_domain, locale, title, 
             "body": body_html
         }
     }
-    logger.info("📤 Updating Zendesk localized translation...")
-    logger.info(f"🔍 URL: {url}")
-    logger.info(f"🔍 EMAIL: {current_settings.get('EMAIL', '')}")
-    logger.info(f"🔍 HEADERS: {headers}")
+    logger.info("Updating Zendesk localized translation...")
+    logger.info("URL: %s", url)
+    logger.info("EMAIL: %s", current_settings.get('EMAIL', ''))
+    logger.info("HEADERS: %s", headers)
     
     async with aiohttp.ClientSession() as session:
         async with session.put(
@@ -30,9 +30,9 @@ async def update_zendesk_translation(article_id, zendesk_domain, locale, title, 
             json=payload
         ) as response:
             if response.status == 200:
-                logger.info("✅ Zendesk translation updated successfully!")
+                logger.info("Zendesk translation updated successfully!")
             else:
-                logger.error(f"❌ Failed to update translation. Status code: {response.status}")
+                logger.error("Failed to update translation. Status code: %d", response.status)
                 error_text = await response.text()
                 logger.error("Response: %s", error_text)
                 response.raise_for_status()
@@ -57,11 +57,11 @@ async def verify_article_update(article_id, locale=None):
                 data = await response.json()
                 body = data.get('translation', {}).get('body')
                 if body:
-                    logger.info("\n 🔍 Updated article preview (first 500 chars):")
-                    logger.info(body[:500])
+                    logger.info("Updated article preview (first 500 chars):")
+                    logger.info("%s", body[:500])
                 else:
                     logger.error("No body found in translation.")
             else:
-                logger.error(f"Failed to fetch localized article. Status code: {response.status}")
+                logger.error("Failed to fetch localized article. Status code: %d", response.status)
                 error_text = await response.text()
-                logger.error("Response text:", error_text)
+                logger.error("Response text: %s", error_text)

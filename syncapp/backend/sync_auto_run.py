@@ -25,9 +25,11 @@ def should_run_now(cron_schedule):
             weekday = parts[5]
             
             now = datetime.now()
-            logger.info(f"Checking schedule: {cron_schedule}")
-            logger.info(f"Current time: {now.hour}:{now.minute}, Day: {now.day}, Month: {now.month}, Weekday: {now.weekday()}")
-            logger.info(f"Schedule time: {hour}:{minute}, Day: {day}, Month: {month}, Weekday: {weekday}")
+            logger.info("Checking schedule: %s", cron_schedule)
+            logger.info("Current time: %s:%s, Day: %s, Month: %s, Weekday: %s", 
+                       now.hour, now.minute, now.day, now.month, now.weekday())
+            logger.info("Schedule time: %s:%s, Day: %s, Month: %s, Weekday: %s",
+                       hour, minute, day, month, weekday)
             
             # Check if current time matches the schedule
             if now.hour != hour or now.minute != minute:
@@ -52,7 +54,7 @@ def should_run_now(cron_schedule):
             logger.info("Schedule matches current time - will run sync")
             return True
     except Exception as e:
-        logger.error(f"Error parsing cron schedule {cron_schedule}: {str(e)}")
+        logger.error("Error parsing cron schedule %s: %s", cron_schedule, str(e))
         return False
     return False
 
@@ -63,7 +65,7 @@ async def run_scheduled_sync(article):
         if not should_run_now(article['cron_schedule']):
             return
             
-        logger.info(f"Running scheduled sync for article: {article['title']}")
+        logger.info("Running scheduled sync for article: %s", article['title'])
         success, message = await run_sync_async(
             article_id=article['article_id'],
             source_url=article['source_url'],
@@ -71,7 +73,7 @@ async def run_scheduled_sync(article):
         )
         
         # Log the result
-        logger.info(f"Sync result for {article['title']}: {message}")
+        logger.info("Sync result for %s: %s", article['title'], message)
         
         # Update sync status in database
         try:
@@ -95,13 +97,16 @@ async def run_scheduled_sync(article):
             
             conn.commit()
             conn.close()
-            logger.info(f"Database updated for article: {article['title']}")
+            logger.info("Database updated for article: %s", article['title'])
         except Exception as db_error:
-            logger.error(f"Database update failed for article {article['title']}: {str(db_error)}")
+            logger.error("Database update failed for article %s: %s", 
+                        article['title'], str(db_error))
         
-        logger.info(f"Scheduled sync completed for article: {article['title']} - Status: {new_status}")
+        logger.info("Scheduled sync completed for article: %s - Status: %s", 
+                   article['title'], new_status)
     except Exception as e:
-        logger.error(f"Error during scheduled sync for article {article['title']}: {str(e)}")
+        logger.error("Error during scheduled sync for article %s: %s", 
+                    article['title'], str(e))
 
 async def check_scheduled_articles():
     """Check for articles that need to be synced based on their cron schedule."""
@@ -120,14 +125,14 @@ async def check_scheduled_articles():
         articles = [dict(row) for row in cursor.fetchall()]
         conn.close()
         
-        logger.info(f"Found {len(articles)} articles with cron schedules")
+        logger.info("Found %d articles with cron schedules", len(articles))
         
         # Run sync for each article
         for article in articles:
             await run_scheduled_sync(article)
             
     except Exception as e:
-        logger.error(f"Error checking scheduled articles: {str(e)}")
+        logger.error("Error checking scheduled articles: %s", str(e))
 
 def run_check_scheduled_articles():
     """Run the async check_scheduled_articles function in the event loop."""
@@ -136,8 +141,8 @@ def run_check_scheduled_articles():
         asyncio.run(check_scheduled_articles())
         logger.info("Scheduled check completed")
     except Exception as e:
-        logger.error(f"Error in scheduled check: {str(e)}")
-        logger.error(f"Traceback: {traceback.format_exc()}")
+        logger.error("Error in scheduled check: %s", str(e))
+        logger.error("Traceback: %s", traceback.format_exc())
 
 def start_scheduler():
     """Start the scheduler to check for scheduled articles every minute."""
@@ -156,12 +161,12 @@ def start_scheduler():
                 schedule.run_pending()
                 time.sleep(1)
             except Exception as e:
-                logger.error(f"Error in scheduler loop: {str(e)}")
-                logger.error(f"Traceback: {traceback.format_exc()}")
+                logger.error("Error in scheduler loop: %s", str(e))
+                logger.error("Traceback: %s", traceback.format_exc())
                 time.sleep(1)  # Wait a bit before retrying
     except Exception as e:
-        logger.error(f"Fatal error in scheduler: {str(e)}")
-        logger.error(f"Traceback: {traceback.format_exc()}")
+        logger.error("Fatal error in scheduler: %s", str(e))
+        logger.error("Traceback: %s", traceback.format_exc())
         scheduler_running = False
 
 def run_scheduler():
@@ -171,7 +176,7 @@ def run_scheduler():
         logger.info("Initializing scheduler thread...")
         scheduler_thread = threading.Thread(target=start_scheduler, daemon=True)
         scheduler_thread.start()
-        logger.info(f"Scheduler thread started with ID: {scheduler_thread.ident}")
+        logger.info("Scheduler thread started with ID: %s", scheduler_thread.ident)
         
         # Verify thread is running
         if scheduler_thread.is_alive():
@@ -180,8 +185,8 @@ def run_scheduler():
             logger.error("Scheduler thread failed to start")
             
     except Exception as e:
-        logger.error(f"Error starting scheduler thread: {str(e)}")
-        logger.error(f"Traceback: {traceback.format_exc()}")
+        logger.error("Error starting scheduler thread: %s", str(e))
+        logger.error("Traceback: %s", traceback.format_exc())
         scheduler_running = False
 
 def stop_scheduler():

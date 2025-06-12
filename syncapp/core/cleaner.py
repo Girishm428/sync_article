@@ -11,21 +11,21 @@ async def convert_tabs_to_static(soup, tab_container):
 
 def _convert_tabs_to_static_sync(soup, tab_container):
     """Synchronous version of convert_tabs_to_static that runs in a separate thread."""
-    logger.info("🔁 Converting a tabs-container section to static content")
+    logger.info("Converting a tabs-container section to static content")
 
     # Grab tab labels
     tabs = tab_container.select("ul.tabs > li")
     tab_titles = [tab.get_text(strip=True) for tab in tabs]
-    logger.info(f"🔎 Tab titles found: {tab_titles}")
+    logger.info("Tab titles found: %s", tab_titles)
 
     # Grab tab content blocks (even hidden ones)
     all_panels = tab_container.select("div[role='tabpanel']")
-    logger.info(f"📦 Total tab panels found: {len(all_panels)}")
+    logger.info("Total tab panels found: %d", len(all_panels))
 
     static_sections = []
 
     for title, panel in zip(tab_titles, all_panels):
-        logger.info(f"🔍 Processing panel for tab: {title}, hidden={panel.has_attr('hidden')}")
+        logger.info("Processing panel for tab: %s, hidden=%s", title, panel.has_attr('hidden'))
 
         # Remove 'hidden' attribute to make content visible
         panel.attrs.pop("hidden", None)
@@ -42,9 +42,9 @@ def _convert_tabs_to_static_sync(soup, tab_container):
             blockquote.append(child.extract())
 
         static_sections.append(blockquote)
-        logger.info(f"📄 Added static section with blockquote for tab: {title}")
+        logger.info("Added static section with blockquote for tab: %s", title)
 
     if static_sections:
         tab_container.replace_with(*static_sections)
     else:
-        logger.warning("⚠️ No matching tab content found. Tabs container skipped.")
+        logger.warning("No matching tab content found. Tabs container skipped.")

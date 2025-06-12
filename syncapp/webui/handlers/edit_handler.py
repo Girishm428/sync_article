@@ -1,5 +1,8 @@
 import syncapp.config.database as db
 from nicegui import ui
+from syncapp.loggers.log_cli import setup_logger
+
+logger = setup_logger(__name__)
 
 def create_edit_handler(article, refresh_callback):
     """
@@ -31,6 +34,7 @@ def create_edit_handler(article, refresh_callback):
     
     def save_changes(article_id, new_title, new_url, new_zendesk_id, dialog):
         try:
+            logger.info("Updating article: %s", new_title)
             # Validate all fields are filled
             if not new_title.strip():
                 ui.notify('Title cannot be empty', type='negative')
@@ -51,10 +55,12 @@ def create_edit_handler(article, refresh_callback):
             conn.commit()
             conn.close()
             
+            logger.info("Article updated successfully: %s", new_title)
             ui.notify('Article updated successfully!', type='positive')
             dialog.close()
             refresh_callback()
         except Exception as e:
+            logger.error("Error updating article %s: %s", new_title, str(e))
             ui.notify(f'Error updating article: {str(e)}', type='negative')
     
     return handle_edit

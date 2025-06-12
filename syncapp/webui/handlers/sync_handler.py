@@ -25,7 +25,7 @@ def create_sync_handler(article, refresh_callback, sync_button):
         conn.commit()
         conn.close()
         refresh_callback()
-        logger.info("Syncing article...")
+        logger.info("Starting sync process for article: %s", article['title'])
         
         # Run the actual sync
         success, message = await run_sync_async(
@@ -76,7 +76,7 @@ def create_bulk_sync_handler(selected_articles, refresh_callback):
             conn.close()
             
             refresh_callback()
-            logger.info(f"Syncing {len(selected_articles)} articles...")
+            logger.info(f"Starting bulk sync for {len(selected_articles)} articles")
 
             # Sync each article
             for article_id in selected_articles:

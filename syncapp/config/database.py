@@ -10,19 +10,19 @@ logger = setup_logger(__name__)
 APP_NAME = "SyncImporter"
 CONFIG_DIR = Path(user_config_dir(APP_NAME, appauthor=False))  # appauthor=False prevents duplicate folder
 DB_FILE = CONFIG_DIR / "articles.db"
-logger.info(f"🔍 Database file: {DB_FILE}")
+logger.info("Database file: %s", DB_FILE)
 
 
 def get_db_connection():
     """Establishes a connection to the database."""
-    logger.info(f"🔍 Establishing connection to database: {DB_FILE}")
+    logger.info("Establishing connection to database: %s", DB_FILE)
     conn = sqlite3.connect(DB_FILE)
     conn.row_factory = sqlite3.Row  # This allows accessing columns by name
     return conn
 
 def init_db():
     """Initializes the database and creates the table if it doesn't exist."""
-    logger.info(f"🔍 Initializing database: {DB_FILE}")
+    logger.info("Initializing database: %s", DB_FILE)
     if DB_FILE.exists():
         # Check if we need to add new columns
         conn = get_db_connection()
@@ -45,7 +45,7 @@ def init_db():
         conn.close()
         return
         
-    logger.info(f"🔍 Creating new database: {DB_FILE}")
+    logger.info("Creating new database: %s", DB_FILE)
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('''
@@ -62,4 +62,4 @@ def init_db():
     ''')
     conn.commit()
     conn.close()
-    logger.info("Database initialized successfully.")
+    logger.info("Database initialized successfully")

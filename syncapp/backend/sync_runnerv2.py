@@ -20,7 +20,7 @@ async def run_sync_async(article_id: str, source_url: str, title: str):
     Async wrapper for the sync logic to be used with NiceGUI without blocking the UI.
     """
     try:
-        logger.info("🔍 Validating settings...")
+        logger.info("Validating settings...")
         validate()
 
         # Load fresh settings
@@ -34,10 +34,10 @@ async def run_sync_async(article_id: str, source_url: str, title: str):
         if not current_settings.get("API_TOKEN"):
             raise ValueError("API token is not set in settings")
 
-        logger.info(f"🌐 Fetching content from: {source_url}")
+        logger.info("Fetching content from: %s", source_url)
         content = await fetch_content(source_url)
 
-        logger.info(f"✍️ Updating Zendesk article ID {article_id}...")
+        logger.info("Updating Zendesk article ID %s...", article_id)
         await update_zendesk_translation(
             article_id=article_id,
             zendesk_domain=current_settings["ZENDESK_DOMAIN"],
@@ -46,13 +46,13 @@ async def run_sync_async(article_id: str, source_url: str, title: str):
             body_html=content,
         )
 
-        logger.info("🔎 Verifying article update...")
+        logger.info("Verifying article update...")
         await verify_article_update(article_id)
 
-        logger.info("✅ Sync process completed successfully!")
+        logger.info("Sync process completed successfully!")
         return True, "Sync process completed successfully!"
 
     except Exception as e:
         error_msg = str(e)
-        logger.error(f"❌ Error during sync: {error_msg}")
+        logger.error("Error during sync: %s", error_msg)
         return False, f"Sync failed: {error_msg}"
